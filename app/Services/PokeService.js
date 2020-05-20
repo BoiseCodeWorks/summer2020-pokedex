@@ -7,6 +7,7 @@ const _pokeApi = axios.create({
     timeout: 3000
 })
 
+// @ts-ignore
 const _sandboxApi = axios.create({
     baseURL: "https://bcw-sandbox.herokuapp.com/api/mark/pokemon",
     timeout: 15000
@@ -17,6 +18,14 @@ class PokeService {
         this.getApiPokemon()
         this.getMyPokemon()
     }
+
+    setActivePokemon(id) {
+        let pokemon = store.State.myPokemon.find(p => p.id == id)
+        if (pokemon) {
+            store.commit('activePokemon', pokemon)
+        }
+    }
+
     getApiPokemon() {
         _pokeApi.get('?limit=150')
             .then(res => {
@@ -44,6 +53,7 @@ class PokeService {
 
     // POST
     catch() {
+        store.State.activePokemon.description = "A brand new shiny " + store.State.activePokemon.name
         _sandboxApi.post("", store.State.activePokemon)
             .then(res => {
                 this.getMyPokemon();
@@ -52,8 +62,22 @@ class PokeService {
     }
 
     // PUT
-
+    editPokemon(update) {
+        _sandboxApi.put(store.State.activePokemon.id, update)
+            .then(res => {
+                this.getMyPokemon()
+            })
+            .catch(e => console.error(e))
+    }
     // DELETE
+    release() {
+        _sandboxApi.delete(store.State.activePokemon.id)
+            .then(res => {
+                this.getMyPokemon();
+                store.commit("activePokemon", null)
+            })
+            .catch(e => console.error(e))
+    }
 }
 
 const service = new PokeService();

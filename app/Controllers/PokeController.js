@@ -13,14 +13,18 @@ function _drawApiPokemon() {
 
 function _drawActivePokemon() {
     let pokemon = store.State.activePokemon
-    document.getElementById("active-pokemon").innerHTML = pokemon.Template
+    if (pokemon) {
+        document.getElementById("active-pokemon").innerHTML = pokemon.Template
+    } else {
+        document.getElementById("active-pokemon").innerHTML = ""
+    }
 }
 
 function _drawMyPokemon() {
     let pokemon = store.State.myPokemon;
     let template = ''
     pokemon.forEach(poke => {
-        template += `<li class="action">${poke.name}</li>`
+        template += `<li class="action" onclick="app.pokeController.setActivePokemon('${poke.id}')">${poke.name}</li>`
     });
     document.getElementById('my-pokemon').innerHTML = template;
 }
@@ -39,5 +43,18 @@ export default class PokeController {
 
     catch() {
         PokeService.catch()
+    }
+    release() {
+        PokeService.release()
+    }
+
+    setActivePokemon(id) {
+        PokeService.setActivePokemon(id)
+    }
+
+    editPokemon(event) {
+        event.preventDefault();
+        let update = { description: event.target.description.value }
+        PokeService.editPokemon(update);
     }
 }
